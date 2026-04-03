@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Anniversary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #f6eeff; --purple: #7b2cbf; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: #333; display: flex; flex-direction: column; align-items: center; }
+        
+        .section { width: 90%; max-width: 400px; margin: 30px 0; text-align: center; }
+        h1 { color: var(--purple); font-size: 2.5rem; }
+
+        /* Scratch-Off Styles */
+        .scratch-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        #scratch-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            cursor: crosshair;
+            touch-action: none; /* Prevents scrolling while scratching */
+        }
+        .under-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Playlist & Cards */
+        .song-card { background: white; border-radius: 15px; padding: 15px; margin: 10px 0; display: flex; align-items: center; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .spotify-icon { width: 40px; height: 40px; background: #1DB954; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
+        .song-info h4 { margin: 0; font-size: 1rem; }
+        .song-info p { margin: 0; font-size: 0.8rem; color: #777; }
+    </style>
+</head>
+<body>
+
+    <section class="section">
+        <h1>Happy Anniversary!</h1>
+        <p>Scratch to see a surprise...</p>
+        
+        <div class="scratch-container">
+            <img src="your-photo.jpg" class="under-photo" alt="Us">
+            <canvas id="scratch-canvas" width="300" height="300"></canvas>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Our Playlist</h2>
+        <div id="playlist-container"></div>
+    </section>
+
+    <script>
+        // 1. GENERATE PLAYLIST
+        const songs = [
+            ["Can't help falling in love", "Elvis Presley"],
+            ["I think i like when it rains", "Willis"],
+            ["Always", "Daniel Caesar"],
+            ["Line Without a Hook", "Ricky Montgomery"],
+            ["Chamber Of Reflection", "Mac DeMarco"],
+            ["Show me how", "Men I Trust"],
+            ["Double Take", "dhruv"],
+            ["we fell in love in october", "girl in red"],
+            ["Heart to heart", "Mac DeMarco"],
+            ["I Wanna Be Yours", "Arctic Monkeys"],
+            ["Those eyes", "New West"]
+        ];
+
+        const container = document.getElementById('playlist-container');
+        songs.forEach(s => {
+            container.innerHTML += `
+                <div class="song-card">
+                    <div class="spotify-icon">♫</div>
+                    <div class="song-info">
+                        <h4>${s[0]}</h4>
+                        <p>${s[1]}</p>
+                    </div>
+                </div>`;
+        });
+
+        // 2. SCRATCH-OFF LOGIC
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create the silver "scratch" cover
+        ctx.fillStyle = '#C0C0C0';
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.fillStyle = '#999';
+        ctx.font = '20px Poppins';
+        ctx.textAlign = 'center';
+        ctx.fillText('Scratch Here ❤️', 150, 150);
+
+        let isDrawing = false;
+
+        function scratch(e) {
+            if (!isDrawing) return;
+            
+            // Handle both Mouse and Touch
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.pageX || e.touches[0].pageX) - rect.left;
+            const y = (e.pageY || e.touches[0].pageY) - rect.top;
+
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('touchstart', () => isDrawing = true);
+        window.addEventListener('mouseup', () => isDrawing = false);
+        window.addEventListener('touchend', () => isDrawing = false);
+        canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Stop screen from bouncing while scratching
+            scratch(e);
+        });
+    </script>
+</body>
+</html>
